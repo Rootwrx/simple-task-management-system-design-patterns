@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="shortcut icon" href="favicon.png" type="image/x-icon" />
+
+    <link rel="stylesheet" href="src/sass/main.scss" />
+    <script type="module" defer src="/src/app.js"></script>
+
+    <title>project title</title>
+  </head>
+
+  <body>
+    <!-- Start  Header -->
+    <header class="header"></header>
+    <!-- End  Header -->
+    <!-- Start Main -->
+    <main>
+      <section></section>
+      <section></section>
+      <section></section>
+    </main>
+
+    <!-- End Main -->
+
+    <!-- Start footer -->
+    <footer></footer>
+    <!-- End footer -->
+  </body>
+</html>
+<!-- 
+<div class="app">
+      <button class="button">button</button>
+      <p data-name="p">
+        <span>old span</span>
+      </p>
+      <img src="1.jpg">
+</div>
+
+
+// main.js 
+document.addEventListener("click", function () {
+  app.dataset.name = Math.random();
+  domUpdater.update(
+    app,
+    `
+    <div id="app">
+      <button id="button"><strong>strong</strong></button>
+      <img src="1.jpg" alt="alt will not show in the update">
+    </div>
+    `,
+    { update: ["button"] } // update only any button 
+  );
+
+  
+});
+// expected ouput 
+
+ <div id="app" data-name="0.5938493">
+      <button id="button"><strong>strong</strong></button>
+      <img src="1.jpg">
+  </div>
+  // and app'data-name should be update (i.e when clicking on document)
+
+
+  ****** Test 2 
+not using parent element  in the new markup but this should give the same ouput as before 
+
+   domUpdater.update(
+    app,
+    `
+      <button id="button"><strong>strong</strong></button>
+      <img src="1.jpg" alt="alt will not show in the update">
+    `,
+    { update: ["button"] } // update only any button 
+  );
+
+  expocted oupput 
+
+   <div id="app" data-name="0.5938493">
+      <button id="button"><strong>strong</strong></button>
+      <img src="1.jpg">
+  </div>
+
+
+  ********* test 3
+
+  document.addEventListener("click", function () {
+  app.dataset.name = Math.random();
+  domUpdater.update(
+    app,
+    `
+    <div class="app">
+      <button id="button"><strong>strong</strong></button>
+      <img src="1.jpg" alt="alt will not show in the update">
+    </div>
+    `,
+    { ignore: ["button"] } // update only any button 
+  );
+
+  expected ouput 
+
+    <div class="app" data-name="0.0949098394"> // this should also always be updated
+      <button class="button"><strong>strong</strong></button> // not changed 
+      <img src="1.jpg" alt="alt will  show in the update">
+    </div>
+
+
+    ************* test  4 parent not new markup ,but should be updated also and in the ouput 
+
+      domUpdater.update(
+    app,
+    `
+      <button id="button"><strong>strong</strong></button>
+      <img src="1.jpg" alt="alt will not show in the update">
+    `,
+    { ignore: ["button"] } // update only any button
+  );
+
+  expected ouput 
+
+ <div class="app" data-name="0.0949098394"> // this should also always be updated
+      <button class="button"><strong>strong</strong></button> // not changed 
+      <img src="1.jpg" alt="alt will  show in the update">
+    </div>
+
+  
+});
+
+
+
+make this code hanldes  deeply nested elements ,al small changes
+updated necessary parts only no parts that hasn't changed
+ -->
+
+<!-- 
+ // html
+<section class="app">
+      <button class="button"><strong>strong</strong></button>
+      <img src="1.jpg">
+</section>
+
+
+** replace = false  // default 
+    ** Scenarios
+    1-> 
+      app.dataset.name = Math.random();
+      DomUpdater.update(
+    app,
+    `
+      <button id="button"><strong>strong</strong></button>
+      <img src="1.jpg" alt>
+    `
+  );
+  ## output should be 
+  <div class="app" data-name='0.5454'>
+      <button id="button"><strong>strong</strong></button>
+      <img src="1.jpg" alt>
+  </div>
+  );
+  
+  2->  // tagchanged or element (should be one child in this case)
+    app.dataset.name = Math.random();
+    DomUpdater.update(
+    app,
+    `<article class="app">
+
+      <button id="button"><strong>strong</strong></button>
+      <img src="1.jpg" alt>
+    </article>
+    `
+  );
+  
+  ### expected ouput (attribues keeps updating even element changed)
+  <article class="app" data-name="0.483904">
+      <button id="button"><strong>strong</strong></button>
+      <img src="1.jpg" alt>
+  </article>
+
+
+
+** replace = true 
+    ** Scenarios
+    1-> 
+ app.dataset.name = Math.random();
+    DomUpdater.update(
+    app,
+    `<div data-id="bf4930" id="new">
+      <button id="button"><strong>strong</strong></button>
+      <img src="1.jpg" alt>
+    </div>
+    `,{replace:true} 
+  );
+
+  ### expected ouput 
+    <div data-id="bf4930" id="new">
+      <button id="button"><strong>strong</strong></button>
+      <img src="1.jpg" alt>
+    </div>
+
+   2->
+
+ app.dataset.name = Math.random();
+    DomUpdater.update(
+    app,
+      <button id="button"><strong>strong</strong></button>
+      <img src="1.jpg" alt>
+    `,{replace:true} 
+  );
+  
+  ### expected ouput
+   <button id="button"><strong>strong</strong></button>
+   <img src="1.jpg" alt>
+
+
+     -->
