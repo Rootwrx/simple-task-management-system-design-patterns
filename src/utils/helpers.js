@@ -41,12 +41,6 @@ const createElement = (tag, attributes = {}) => {
   return element;
 };
 
-Element.prototype.get = function (selector) {
-  return this.querySelector(selector);
-};
-Element.prototype.getAll = function (selector) {
-  return Array.from(this.querySelectorAll(selector));
-};
 
 const get = (selector) => document.querySelector(selector);
 const getAll = (selector) => document.querySelectorAll(selector);

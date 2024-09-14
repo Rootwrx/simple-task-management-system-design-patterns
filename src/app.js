@@ -1,7 +1,5 @@
-import Controler from "./controllers/controller";
-import Model from "./models/model";
-import View from "./views/View";
+import TaskControler from "./controllers/taskController";
 
-document.addEventListener("DOMContentLoaded", function () {
-  new Controler(new Model(), new View());
+document.addEventListener("DOMContentLoaded", () => {
+  new TaskControler();
 });

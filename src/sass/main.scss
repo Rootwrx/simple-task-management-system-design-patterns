@@ -2,6 +2,168 @@
 @import "vars";
 @import "base";
 
+h1 {
+  margin-bottom: 40px;
+  color: orangered;
+  text-align: center;
+  text-decoration: underline;
+}
 
+h2 {
+  margin-bottom: 30px;
+}
+.container {
+  font-family: "FiraCode Nerd Font Mono", Helvetica, sans-serif;
+  max-width: 100%;
+  width: 800px;
+  margin: 100px auto;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 1px 1px 10px rgba(black, 0.2);
+}
 
+.inputs {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+input,
+select {
+  border: 1px solid #999;
+  padding: 5px;
+  border-radius: 5px;
+}
+input {
+  flex: 1;
+}
 
+select {
+  background-color: transparent;
+  padding-inline: 15px;
+}
+
+button {
+  background-color: #f9f7f7;
+  padding: 10px 20px;
+  border-radius: 10px;
+  color: orangered;
+  border: 1px solid orangered;
+}
+.delete {
+  background-color: rgba(red, 0.2);
+  border-color: orange;
+}
+
+.outputs {
+  margin-top: 20px;
+  background-color: rgba(black, 0.5);
+  border-radius: 10px;
+
+  display: grid;
+  gap: 0.5rem;
+  padding: 20px 10px;
+}
+.task {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 10px;
+  padding: 8px 10px;
+  background-color: white;
+  gap: 1rem;
+  .btns,
+  & {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .btns {
+    gap: 1rem;
+  }
+  .task-title {
+    font-family: cursive;
+    color: #393838;
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 30px;
+}
+
+.status {
+  display: grid;
+  grid-template-columns: 50% 50%;
+  gap: 1rem;
+  justify-items: center;
+  span {
+    display: block;
+    text-align: center;
+    padding: 1px 10px;
+    font-size: 14px;
+    border-radius: 5px;
+  }
+  .type {
+    background-color: rgb(221, 244, 253);
+  }
+  .priority[data-priority="low"] {
+    background-color: rgb(251, 251, 159);
+  }
+  .priority[data-priority="medium"] {
+    background-color: rgb(172, 172, 249);
+  }
+  .priority[data-priority="high"] {
+    background-color: rgb(252, 115, 115);
+  }
+}
+
+.modal {
+  position: fixed;
+  @include box(100%);
+  inset: 0;
+  background-color: rgba(black, 0.2);
+  display: grid;
+  place-items: center;
+  transform: 0.4s;
+  @include fade(out);
+  &.show {
+    @include fade(in);
+  }
+}
+.update-modal {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+
+  max-height: 700px;
+  width: 300px;
+  display: grid;
+  gap: 1rem;
+  input {
+    width: 100%;
+  }
+
+  span {
+    font-size: 1.5rem;
+    text-align: center;
+    text-transform: capitalize;
+    color: orangered;
+    font-weight: 800;
+  }
+  .row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  select,
+  input {
+    padding-block: 0.7rem;
+  }
+
+  button {
+    margin-top: 1rem;
+  }
+}

@@ -7,8 +7,8 @@ class BaseModel {
     this.observers.push(observer);
   }
 
-  notify(data) {
-    this.observers.forEach((observer) => observer.update(data));
+  notify(action, data) {
+    this.observers.forEach((observer) => observer(action, data));
   }
 }
 

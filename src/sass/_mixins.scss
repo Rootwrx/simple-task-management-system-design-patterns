@@ -1,3 +1,4 @@
+@use "sass:math";
 $grid-breakpoints: (
   sm: 640px,
   md: 768px,
@@ -5,33 +6,6 @@ $grid-breakpoints: (
   xl: 1280px,
   xxl: 1536px,
 );
-
-@mixin media($size, $type: min) {
-  @if map-has-key($grid-breakpoints, $size) {
-    $width: map-get($grid-breakpoints, $size);
-
-    @if $type ==max {
-      $width: $width - 1;
-    }
-
-    @media only screen and (#{$type}-width : $width) {
-      @content;
-    }
-  }
-}
-
-@mixin media-between($lower, $upper) {
-  @if map-has-key($grid-breakpoints, $lower) and
-    map-has-key($grid-breakpoints, $upper)
-  {
-    $lower-breakpoint: map-get($grid-breakpoints, $lower);
-    $upper-breakpoint: map-get($grid-breakpoints, $upper);
-
-    @media (min-width: $lower-breakpoint) and (max-width: ($upper-breakpoint - 1)) {
-      @content;
-    }
-  }
-}
 
 @mixin fade($type: in, $duration: 0.3s, $easing: ease-in-out) {
   transition: all $duration $easing, height 0.1s ease-in-out;
@@ -44,28 +18,141 @@ $grid-breakpoints: (
   }
 }
 
-@function rem($px, $base: 16px) {
-  @return $px / $base * 1rem;
-}
 @mixin box($w, $h: $w) {
   width: $w;
   height: $h;
 }
 
-%flex-center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+$base-font-size: 16px;
+
+@function strip-unit($value) {
+  @return $value / ($value * 0 + 1);
 }
 
-%flex-between {
-  display: flex;
-  align-items: center;
-  justify-content: between;
+@function px($value) {
+  @if type-of($value) == "number" {
+    @if unit($value) == rem {
+      @return strip-unit($value) * $base-font-size;
+    } @else if unit($value) == "em" {
+      @return strip-unit($value) * $base-font-size;
+    } @else if unit($value) == px {
+      @return $value;
+    } @else if unit($value) == "%" {
+      @return $value;
+    } @else {
+      @warn "Cannot convert #{unit($value)} to px. Using original value.";
+      @return $value;
+    }
+  } @else {
+    @return $value;
+  }
+}
+
+@function rem($value) {
+  $px-value: px($value);
+  @if unit($px-value) == "%" {
+    @return $px-value;
+  } @else {
+    @return strip-unit($px-value) / strip-unit($base-font-size) * 1rem;
+  }
+}
+
+/*****      fluid scaling with clamp     *******/
+
+@function responsive-value(
+  $minV,
+  $maxV,
+  $minVP: 375px,
+  $maxVP: 1200px,
+  $unit: rem
+) {
+  @if $unit != px and $unit != rem {
+    @error "Output unit must be either 'px' or 'rem'. Received: #{$unit}";
+  }
+
+  $convert-function: if($unit == rem, rem, px);
+
+  $minV-converted: call($convert-function, $minV);
+  $maxV-converted: call($convert-function, $maxV);
+  $minVP-converted: call($convert-function, $minVP);
+  $maxVP-converted: call($convert-function, $maxVP);
+
+  $minV-stripped: strip-unit($minV-converted);
+  $maxV-stripped: strip-unit($maxV-converted);
+  $minVP-stripped: strip-unit($minVP-converted);
+  $maxVP-stripped: strip-unit($maxVP-converted);
+
+  $minV-unit: if(unit($minV-converted) == "%", "%", $unit);
+  $maxV-unit: if(unit($maxV-converted) == "%", "%", $unit);
+
+  @return clamp(
+    #{$minV-stripped}#{$minV-unit},
+    calc(
+      #{$minV-stripped}#{$minV-unit} + (#{$maxV-stripped} - #{$minV-stripped}) *
+        (
+          (100vw - #{$minVP-stripped}#{$unit}) /
+            (#{$maxVP-stripped} - #{$minVP-stripped})
+        )
+    ),
+    #{$maxV-stripped}#{$maxV-unit}
+  );
+}
+
+/****************    media query            ************/
+
+// Function to handle unit conversion based on size
+@function handle-unit($value, $type) {
+  @if unit($value) == rem {
+    @if $type == max {
+      @return $value - rem(1px);
+    } @else {
+      @return $value;
+    }
+  } @else if unit($value) == px {
+    @return $value;
+  } @else {
+    @warn "Unsupported unit for value #{$value}. Only px and rem are supported.";
+    @return $value;
+  }
+}
+
+// Media mixin
+@mixin media($size, $type: min) {
+  $width: if(
+    map-has-key($grid-breakpoints, $size),
+    map-get($grid-breakpoints, $size),
+    $size
+  );
+  $width-handled: handle-unit($width, $type);
+
+  @media only screen and (#{$type}-width: #{$width-handled}) {
+    @content;
+  }
+}
+
+// Media between mixin
+@mixin media-between($lower, $upper) {
+  $lower-breakpoint: if(
+    map-has-key($grid-breakpoints, $lower),
+    map-get($grid-breakpoints, $lower),
+    $lower
+  );
+  $upper-breakpoint: if(
+    map-has-key($grid-breakpoints, $upper),
+    map-get($grid-breakpoints, $upper),
+    $upper
+  );
+
+  $lower-breakpoint-handled: handle-unit($lower-breakpoint, min);
+  $upper-breakpoint-handled: handle-unit($upper-breakpoint, max);
+
+  @media (min-width: #{$lower-breakpoint-handled}) and (max-width: #{$upper-breakpoint-handled}) {
+    @content;
+  }
 }
 
 
-%grid-center {
-  display: grid;
-  place-items: center;
-}
+
+
+
+

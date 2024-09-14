@@ -27,6 +27,64 @@
 
     <!-- Start footer -->
     <footer></footer>
+
+    <div class="container">
+      <h1>Task Management System</h1>
+
+      <div>
+        <h2>Add New Task</h2>
+        <form class="inputs">
+          <input type="text" name="title" required placeholder="task" id="title" />
+          <select name="priority" id="priority">
+            <option selected value="medium">medium</option>
+            <option value="high">high</option>
+            <option value="low">low</option>
+          </select>
+          <select name="type" id="type">
+            <option value="work">work</option>
+            <option value="personal">personal</option>
+            <option value="community">community</option>
+          </select>
+
+          <button class="addtask">add task</button>
+        </form>
+        <div class="outputs"></div>
+      </div>
+
+      <div class="actions">
+        <button class="undo">undo</button>
+        <button class="redo">redo</button>
+      </div>
+    </div>
+
+    <form class="modal">
+      <div class="update-modal">
+        <span> update Task</span>
+        <div class="row">
+          <label for="title"> title</label>
+          <input type="text" name="title" class="title" required placeholder="New Title" />
+        </div>
+        <div class="row">
+          <label for="priority">priority</label>
+          <select name="priority" class="priority" >
+            <option selected value="medium">medium</option>
+            <option value="high">high</option>
+            <option value="low">low</option>
+          </select>
+        </div>
+        <div class="row">
+          <label for="type">type</label>
+
+          <select name="type" class="type">
+            <option value="work">work</option>
+            <option value="personal">personal</option>
+            <option value="community">community</option>
+          </select>
+        </div>
+
+        <button class="updatetask">update task</button>
+      </div>
+    </form>
     <!-- End footer -->
   </body>
 </html>

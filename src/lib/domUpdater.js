@@ -1,4 +1,3 @@
-
 class DOMUpdater {
   constructor() {
     this.parser = new DOMParser();
@@ -6,12 +5,6 @@ class DOMUpdater {
 
   update(element, newMarkup, options = {}) {
     const { update = [], ignore = [] } = options;
-
-    // Compare element's current content with new markup
-    if (element.innerHTML.trim() === newMarkup.trim()) {
-      return; // No update required if the content is identical
-    }
-
     const originalAttributes = this.getAttributes(element);
     const newDoc = this.parser.parseFromString(
       `<div>${newMarkup}</div>`,
@@ -79,22 +72,29 @@ class DOMUpdater {
       const newChild = newChildren[newIndex];
 
       if (!oldChild) {
+        // Add new child
         if (!this.shouldIgnore(newChild, ignore)) {
           oldElement.appendChild(this.cloneNode(newChild));
         }
         newIndex++;
       } else if (!newChild) {
+        // Remove old child
         if (!this.shouldIgnore(oldChild, ignore)) {
           if (oldChild.parentNode === oldElement) {
             oldElement.removeChild(oldChild);
+          } else {
+            oldIndex++;
           }
+        } else {
+          oldIndex++;
         }
-        oldIndex++;
       } else if (this.isSameNode(oldChild, newChild)) {
-        this.updateChild(oldChild, newChild, update, ignore);
+        // Update existing child
+        this.updateChild(oldChild, newChild, oldElement, update, ignore);
         oldIndex++;
         newIndex++;
       } else {
+        // Nodes are different
         if (this.shouldIgnore(oldChild, ignore)) {
           oldIndex++;
         } else if (this.shouldIgnore(newChild, ignore)) {
@@ -111,7 +111,13 @@ class DOMUpdater {
     }
   }
 
-  updateChild(oldChild, newChild, update, ignore) {
+  isSameNode(node1, node2) {
+    return (
+      node1.nodeType === node2.nodeType && node1.nodeName === node2.nodeName
+    );
+  }
+
+  updateChild(oldChild, newChild, parentElement, update, ignore) {
     if (this.shouldIgnore(oldChild, ignore)) {
       return;
     }
@@ -123,19 +129,9 @@ class DOMUpdater {
         }
       } else if (oldChild.nodeType === Node.ELEMENT_NODE) {
         this.updateAttributes(oldChild, newChild);
-        this.updateChildren(oldChild, newChild, [], ignore);
-      }
-    } else {
-      if (oldChild.nodeType === Node.ELEMENT_NODE) {
         this.updateChildren(oldChild, newChild, update, ignore);
       }
     }
-  }
-
-  isSameNode(node1, node2) {
-    return (
-      node1.nodeType === node2.nodeType && node1.nodeName === node2.nodeName
-    );
   }
 
   preserveAttributes(element, originalAttributes, newParentElement) {
