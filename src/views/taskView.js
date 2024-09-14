@@ -1,4 +1,5 @@
 import BaseView from "../core/BaseView";
+import { Actions } from "../utils/config";
 import { UUID } from "../utils/helpers";
 
 class TaskView extends BaseView {
@@ -9,6 +10,11 @@ class TaskView extends BaseView {
   redo = document.querySelector(".redo");
   modal = document.querySelector(".modal");
   editingMode = false;
+  constructor(eventBus) {
+    super();
+    this.eventBus = eventBus;
+    this.setUpEvent();
+  }
 
   generateMarkup() {
     return `
@@ -36,41 +42,48 @@ class TaskView extends BaseView {
     `;
   }
 
-  onAddTask(handler) {
-    this.form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      if (!this.form.title.value.trim()) return;
+  setUpEvent() {
+    this.modal.addEventListener("click", this.onHideMoal.bind(this));
+    this.parentElement.addEventListener("click", this.onSetEditMode.bind(this));
+    this.redo.addEventListener("click", this.onRedo.bind(this));
+    this.undo.addEventListener("click", this.onUndo.bind(this));
+    this.form.addEventListener("submit", this.onAddTask.bind(this));
+    this.modal.addEventListener("submit", this.onEditSubmited.bind(this));
+    this.parentElement.addEventListener("click", this.onDeleteItem.bind(this));
+  }
 
-      handler?.({
-        priority: this.form.priority.value,
-        type: this.form.type.value,
-        title: this.form.title.value,
-        id: UUID(),
-      });
+  onAddTask(e) {
+    e.preventDefault();
+    if (!this.form.title.value.trim()) return;
+
+    this.eventBus.notify(Actions.addTask, {
+      priority: this.form.priority.value,
+      type: this.form.type.value,
+      title: this.form.title.value,
+      id: UUID(),
     });
   }
 
-  onUndo(handler) {
-    this.undo.addEventListener("click", handler);
+  onUndo() {
+    this.eventBus.notify(Actions.undo);
   }
-  onRedo(handler) {
-    this.redo.addEventListener("click", handler);
+
+  onRedo() {
+    this.eventBus.notify(Actions.redo);
   }
 
   remove(id) {
     super.remove(`[data-id=${id}]`);
   }
 
-  onSetEditMode() {
-    this.parentElement.addEventListener("click", (e) => {
-      const { target } = e;
+  onSetEditMode(e) {
+    const { target } = e;
 
-      if (!target.closest(".edit")) return;
-      const id = target.closest(".task").dataset.id;
+    if (!target.closest(".edit")) return;
+    const id = target.closest(".task").dataset.id;
 
-      this.updateModal(id);
-      this.modal.classList.add("show");
-    });
+    this.updateModal(id);
+    this.modal.classList.add("show");
   }
 
   extractData(taskId) {
@@ -90,29 +103,25 @@ class TaskView extends BaseView {
     this.modal.querySelector(".type").value = data.type;
   }
 
-  onHideMoal() {
-    this.modal.addEventListener("click", (e) => {
-      // hide only when clicking outside the updating area
-      if (e.target.closest(".update-modal")) return;
-      this.modal.classList.remove("show");
-    });
+  onHideMoal(e) {
+    // hide only when clicking outside the updating area
+    if (e.target.closest(".update-modal")) return;
+    this.modal.classList.remove("show");
   }
 
-  onEditSubmited(handler) {
-    this.modal.addEventListener("submit", (e) => {
-      e.preventDefault();
+  onEditSubmited(e) {
+    e.preventDefault();
 
-      const newTask = {
-        priority: this.modal.priority.value,
-        type: this.modal.type.value,
-        title: this.modal.title.value,
-        id: this.elementToUpdate.id,
-      };
+    const newTask = {
+      priority: this.modal.priority.value,
+      type: this.modal.type.value,
+      title: this.modal.title.value,
+      id: this.elementToUpdate.id,
+    };
 
-      if (this.isSameData(newTask)) return;
-      handler(newTask);
-      this.modal.classList.remove("show");
-    });
+    if (this.isSameData(newTask)) return;
+    this.modal.classList.remove("show");
+    this.eventBus.notify(Actions.updateTask, newTask);
   }
 
   isSameData({ priority, type, title }) {
@@ -126,15 +135,13 @@ class TaskView extends BaseView {
     return true;
   }
 
-  onDeleteItem(handler) {
-    this.parentElement.addEventListener("click", (e) => {
-      const { target } = e;
+  onDeleteItem(e) {
+    const { target } = e;
 
-      if (!target.closest(".delete")) return;
-      const id = target.closest(".task").dataset.id;
+    if (!target.closest(".delete")) return;
+    const id = target.closest(".task").dataset.id;
 
-      handler(id);
-    });
+    this.eventBus.notify(Actions.deleteTask, id);
   }
 }
 

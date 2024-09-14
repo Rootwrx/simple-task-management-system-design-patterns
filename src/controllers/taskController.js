@@ -7,74 +7,68 @@ import {
   UpdateTaskCommand,
 } from "../patterns/commands";
 import TaskFactory from "../patterns/taskFactory";
+import { Actions } from "../utils/config";
 import TaskView from "../views/taskView";
 
 class TaskControler extends BaseView {
-  constructor() {
+  constructor(eventBus) {
     super();
-    this.taskManager = new TaskManager();
-    this.view = new TaskView();
-    this.taskManager.subscribe("updateTasks", this.update.bind(this));
+    this.eventBus = eventBus;
+    // model
+    this.taskManager = new TaskManager(this.eventBus);
+    // view
+    this.view = new TaskView(this.eventBus);
+    // design patter
     this.commandManager = new CommandManager();
-
     this.taskFactory = TaskFactory;
 
     this.init();
   }
 
   init() {
-    // setup handlers
-    this.view.onAddTask(this.addTask.bind(this));
-    this.view.onRedo(this.redo.bind(this));
-    this.view.onUndo(this.undo.bind(this));
-    this.view.onDeleteItem(this.deleteTask.bind(this));
-    this.view.onHideMoal();
-    this.view.onSetEditMode();
-    this.view.onEditSubmited(this.updateTask.bind(this));
-
-    // render from localStorage
+    this.setUpEvents();
     this.view.render(this.taskManager.tasks);
   }
 
-  addTask(taskData) {
-    const task = this.taskFactory.createTask(taskData);
-
-    const command = new AddTaskCommand(this.taskManager, task);
-    this.commandManager.execute(command);
+  setUpEvents() {
+    this.eventBus.subscribe(Actions.addTask, this.taskAction.bind(this));
+    this.eventBus.subscribe(Actions.deleteTask, this.taskAction.bind(this));
+    this.eventBus.subscribe(Actions.updateTask, this.taskAction.bind(this));
+    this.eventBus.subscribe(Actions.redo, this.redo.bind(this));
+    this.eventBus.subscribe(Actions.undo, this.undo.bind(this));
   }
 
-  deleteTask(id) {
-    const command = new DeleteTaskCommand(this.taskManager, id);
+  taskAction(action, data) {
+    let command;
+    switch (action) {
+      case Actions.addTask:
+        const task = this.taskFactory.createTask(data);
+        command = new AddTaskCommand(this.taskManager, task);
+        break;
+      case Actions.deleteTask:
+        command = new DeleteTaskCommand(this.taskManager, data);
+        break;
+      case Actions.updateTask:
+        command = new UpdateTaskCommand(this.taskManager, data.id, data);
+        break;
+    }
+    if (!command) return;
     this.commandManager.execute(command);
+    this.updateView();
   }
 
-  updateTask(taskData) {
-    const command = new UpdateTaskCommand(
-      this.taskManager,
-      taskData.id,
-      taskData
-    );
-    this.commandManager.execute(command);
-  }
   redo() {
     this.commandManager.redo();
-  }
-  undo() {
-    this.commandManager.undo();
+    this.updateView();
   }
 
-  update(action, data) {
-    // switch (action) {
-    //   case "addTask":
-    //     this.view.prepend(data);
-    //     break;
-    //   case "removeTask":
-    //     this.view.remove(data.id);
-    //     break;
-    //   default:
-    //   }
+  undo() {
+    this.commandManager.undo();
+    this.updateView();
+  }
+
+  updateView() {
     this.view.update(this.taskManager.tasks);
-    console.log(this.taskManager.events);
   }
 }
 

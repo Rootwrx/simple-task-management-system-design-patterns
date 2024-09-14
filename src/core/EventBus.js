@@ -1,18 +1,28 @@
-export default  class EventBus {
+export default class EventBus {
   constructor() {
-    this.events = {};
+    this.listeners = {};
   }
 
   subscribe(event, callback) {
-    if (!this.events[event]) {
-      this.events[event] = [];
+    if (!this.listeners[event]) {
+      this.listeners[event] = [];
     }
-    this.events[event].push(callback);
+    this.listeners[event].push(callback);
+  }
+
+  unsubscribe(event, callback) {
+    if (this.listeners[event]) {
+      this.listeners[event] = this.listeners[event].filter(
+        (cb) => cb !== callback
+      );
+    }
   }
 
   notify(event, data) {
-    if (this.events[event]) {
-      this.events[event].forEach(callback => callback(data));
+    console.log('running subscribed functions')
+    if (this.listeners[event]) {
+      console.log(this.listeners[event])
+      this.listeners[event].forEach((callback) => callback( event,data));
     }
   }
 }
