@@ -1,5 +1,5 @@
-import BaseModel from "../core/BaseModel";
-class TaskManager extends BaseModel {
+import EventBus from "../core/EventBus";
+class TaskManager extends EventBus {
   constructor() {
     super();
     this.tasks = JSON.parse(localStorage.getItem("tasks")) || [];
@@ -7,7 +7,7 @@ class TaskManager extends BaseModel {
 
   addTask(task) {
     this.tasks.unshift(task);
-    this.notify("addTask", task);
+    this.notify("updateTasks", task);
   }
 
   updateTask(id, data) {
@@ -16,7 +16,7 @@ class TaskManager extends BaseModel {
     el.priority = data.priority;
     el.type = data.type;
 
-    this.notify("updateTask", el);
+    this.notify("updateTasks", el);
   }
 
   deleteTask(id) {
@@ -24,11 +24,11 @@ class TaskManager extends BaseModel {
     if (index == -1) return;
     this.tasks.splice(index, 1);
 
-    this.notify("removeTask", { id });
+    this.notify("updateTasks", { id });
   }
 
-  notify(action, data) {
-    super.notify(action, data);
+  notify(event, data) {
+    super.notify(event, data);
     this.save();
   }
 
